@@ -67,7 +67,7 @@
                     </td>
                     <td class="px-6 py-3" v-else>
                         <Link :href="route('courses.show',course)" class="underline">
-                            <PrimaryButton >Detalle del curso</PrimaryButton>
+                            <PrimaryButton>Detalle del curso</PrimaryButton>
                         </Link>
                     </td>
                 </tr>
@@ -79,6 +79,24 @@
                 </tbody>
             </table>
         </div>
+        <!-- Botones de Paginación -->
+        <div class="flex justify-between items-center mt-4">
+            <button
+                @click="fetchCourses(pagination.prev_page_url)"
+                :disabled="!pagination.prev_page_url"
+                class="px-4 py-2 bg-gray-300 text-gray-700 font-bold rounded hover:bg-gray-400"
+            >
+                Anterior
+            </button>
+            <span>Página {{ pagination.current_page }} de {{ pagination.last_page }}</span>
+            <button
+                @click="fetchCourses(pagination.next_page_url)"
+                :disabled="!pagination.next_page_url"
+                class="px-4 py-2 bg-gray-300 text-gray-700 font-bold rounded hover:bg-gray-400"
+            >
+                Siguiente
+            </button>
+        </div>
     </div>
 </template>
 
@@ -86,8 +104,9 @@
 import {Link} from "@inertiajs/vue3";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import CourseRegister from "@/Components/CourseRegister.vue";
+
 export default {
-    components: {PrimaryButton,CourseRegister, Link},
+    components: {PrimaryButton, CourseRegister, Link},
     props: {
         isUser: {
             type: Boolean,
@@ -110,20 +129,27 @@ export default {
             },
             ageRanges: ['5-8', '9-13', '14-16', '16+'], // Rangos de edades
             user_courses: [], // Lista de cursos del usuario
+            pagination: {},
         };
     },
     computed: {
         filteredCourses() {
+
             let courses = []
             if (this.user_courses.length > 0) {
                 this.courses.forEach(c => {
                     if (this.user_courses.find(uc => uc.id === c.id)) {
                         c.is_registered = true
                         courses.push(c)
-                    }else{
+                    } else {
                         c.is_registered = false
                         courses.push(c)
                     }
+                })
+            }else{
+                this.courses.forEach(c => {
+                    c.is_registered = false
+                    courses.push(c)
                 })
             }
             return courses.filter((course) => {
@@ -135,6 +161,7 @@ export default {
                     !this.filters.age_group || course.age_group === this.filters.age_group;
                 return matchesName && matchesCategory && matchesAgeGroup;
             });
+
         },
     },
     mounted() {
@@ -142,15 +169,24 @@ export default {
         Promise.all([this.fetchCourses(), this.fetchCategories()]);
     },
     methods: {
-        async fetchCourses() {
-            const response = await fetch('/api/courses');
-            const data= await response.json();
-            this.courses = data.courses;
-            if(this.isUser){
-                //obtain courses when user is registered
-                const response = await fetch(`/api/user/${this.userId}/courses`);
-                const data = await response.json();
-                this.user_courses = data.courses;
+        async fetchCourses(url = "/api/courses") {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // Actualizar cursos y datos de paginación
+            this.courses = data.data; // Los cursos están en "data" debido a paginate()
+            this.pagination = {
+                current_page: data.current_page,
+                last_page: data.last_page,
+                next_page_url: data.next_page_url,
+                prev_page_url: data.prev_page_url,
+            };
+
+            // Si es un usuario autenticado, cargar sus cursos registrados
+            if (this.isUser) {
+                const userResponse = await fetch(`/api/user/${this.userId}/courses`);
+                const userData = await userResponse.json();
+                this.user_courses = userData.courses;
             }
         },
 
@@ -172,4 +208,8 @@ export default {
 
 <style scoped>
 /* Agrega cualquier estilo adicional aquí si es necesario */
+button:disabled {
+    background-color: #e2e8f0;
+    cursor: not-allowed;
+}
 </style>

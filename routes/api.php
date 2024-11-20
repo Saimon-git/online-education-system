@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('courses', [CourseController::class, 'apiIndex']);
+    Route::post('/courses', [CourseController::class, 'store']);
+    Route::post('/courses/{course}/videos', [VideoController::class, 'store']);
     Route::get('courses/{id}', [CourseController::class, 'apiShow']);
     Route::post('courses/{id}/register', [UserCourseController::class, 'apiRegister']);
     Route::get('categories', [CategoryController::class, 'index']);

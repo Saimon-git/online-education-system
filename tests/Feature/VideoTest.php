@@ -70,3 +70,54 @@ it('allows a user to unlike a video', function () {
     ]);
 });
 
+it('associates videos to a course', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    // Crear un curso
+    $course = \App\Models\Course::factory()->create();
+
+    // Datos de videos para asociar
+    $videos = [
+        ['title' => 'Video 1', 'url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'duration' => '5:00'],
+        ['title' => 'Video 2', 'url' => 'https://www.youtube.com/watch?v=abc123', 'duration' => '3:30'],
+    ];
+
+    // Simular solicitud para asociar videos
+    $response = $this->postJson("/api/courses/{$course->id}/videos", ['videos' => $videos]);
+
+    // Verificar respuesta exitosa
+    $response->assertStatus(201)
+        ->assertJsonPath('message', 'Videos agregados exitosamente');
+
+    // Verificar que los videos están en la base de datos
+    foreach ($videos as $video) {
+        $this->assertDatabaseHas('videos', [
+            'course_id' => $course->id,
+            'title' => $video['title'],
+            'url' => $video['url'],
+            'duration' => $video['duration'],
+        ]);
+    }
+});
+
+it('validates video data when adding to a course', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    // Crear un curso
+    $course = \App\Models\Course::factory()->create();
+
+    // Video con datos faltantes
+    $videos = [
+        ['title' => '', 'url' => '', 'duration' => ''],
+    ];
+
+    // Intentar agregar videos inválidos
+    $response = $this->postJson("/api/courses/{$course->id}/videos", ['videos' => $videos]);
+
+    // Verificar errores de validación
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['videos.0.title', 'videos.0.url', 'videos.0.duration']);
+});
+
+
+

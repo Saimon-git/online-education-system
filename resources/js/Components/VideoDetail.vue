@@ -4,10 +4,10 @@
         <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ video.title }}</h1>
 
         <!-- Reproductor de Video -->
-        <div class="aspect-w-16 aspect-h-9 mb-6">
+        <div class="aspect-w-16 aspect-h-16 mb-6">
             <p class=" text-2xl font-bold text-gray-800">video</p>
             <iframe
-                :src="video.url"
+                :src="embedUrl"
                 frameborder="0"
                 allow="autoplay; encrypted-media"
                 allowfullscreen
@@ -59,6 +59,16 @@ export default {
             type: Boolean,
             default: false,
         }
+    },
+    computed: {
+        embedUrl() {
+            // Convertir URL estándar de YouTube al formato embebible
+            if (this.video.url.includes("youtube.com/watch")) {
+                const videoId = this.video.url.split("v=")[1].split("&")[0];
+                return `https://www.youtube.com/embed/${videoId}`;
+            }
+            return this.video.url; // Si ya está en formato embebible o es de otra fuente
+        },
     },
     data() {
         return {

@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class VideoController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request, Course $course)
     {
-        $validated = $request->validate([
-            'title' => 'required|string',
-            'url' => 'required|url',
-            'category_id' => 'required|exists:categories,id',
-            'course_id' => 'required|exists:courses,id',
+        $request->validate([
+            'videos' => 'required|array',
+            'videos.*.title' => 'required|string|max:255',
+            'videos.*.url' => 'required|url',
+            'videos.*.duration' => 'required|string',
         ]);
 
-        return Video::create($validated);
+        foreach ($request->videos as $videoData) {
+            $course->videos()->create($videoData);
+        }
+
+        return response()->json(['message' => 'Videos agregados exitosamente'], 201);
     }
 
     public function toggleLike(Video $video, Request $request)
@@ -82,9 +87,21 @@ class VideoController extends Controller
         $totalVideos = $course->videos()->count();
         $completedVideos = $user->completedVideos()->where('course_id', $course->id)->count();
         $progress = ($completedVideos / $totalVideos) * 100;
+        //retornar solo 2 decimales en el valor del progreso
+        $progress = round($progress, 2);
 
         // Actualizar el progreso del curso
         $user->courses()->updateExistingPivot($course->id, ['progress' => $progress]);
+
+        return response()->json([
+            'message' => 'Video marked as completed',
+            'progress' => $progress,
+        ]);
+
+        // Actualizar el progreso del curso
+        $user->courses()->updateExistingPivot($course->id, ['progress' => $progress]);
+        //Aumentar el numero de views del video
+        $video->increment('views');
 
         return response()->json([
             'message' => 'Video marked as completed',

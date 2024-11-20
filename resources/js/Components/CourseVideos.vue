@@ -44,11 +44,17 @@
                     </div>
                 </div>
             </div>
-
-            <div>
-                <Link :href="route('show.video',[video.course.id,video.title])" class="text-blue-500 font-semibold hover:underline">
+            <!-- Estado de Finalización -->
+            <div class="flex flex-col items-center">
+                <Link :href="route('show.video', [video.course.id, video.title])" class="text-blue-500 font-semibold hover:underline">
                     Ver
                 </Link>
+                <span
+                    v-if="video.is_completed"
+                    class="mt-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full"
+                >
+                    Completado
+                </span>
             </div>
         </div>
     </div>
@@ -80,6 +86,10 @@ export default {
                     })
 
                 }
+                // Determinar si el video está completado por el usuario actual
+                video.is_completed = video.completed_by_users.some(
+                    (user) => user.id === current_user.id
+                );
                 all_videos.push(video)
             })
             return all_videos;

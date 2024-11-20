@@ -19,6 +19,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/video/{video}/comments', [CommentController::class, 'store'])->name('api.comments.store');
     Route::post('/comments/{comment}/approve', [CommentController::class, 'approve'])->name('api.comments.approve');
     Route::post('/comments/{comment}/decline', [CommentController::class, 'decline'])->name('api.comments.decline');
+    Route::post('/videos/{video}/complete', [VideoController::class, 'markAsCompleted']);
+    Route::get('/courses/{id}/progress', [CourseController::class, 'getProgress']);
 });
 
 

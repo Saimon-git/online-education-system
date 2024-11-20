@@ -1,9 +1,9 @@
 <template>
-    <div class="mb-6">
+    <div class="my-6">
         <h2 class="text-2xl font-semibold text-gray-700 mb-4">Comentarios</h2>
 
         <!-- Formulario para Crear Comentario -->
-        <form @submit.prevent="createComment" class="mb-6">
+        <form @submit.prevent="createComment" class="mb-16">
             <div class="mb-4">
                 <textarea
                     v-model="newComment"
@@ -15,14 +15,45 @@
             </div>
             <button
                 type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded float-right"
             >
                 Publicar Comentario
             </button>
         </form>
 
+        <!-- Mostrar los comentarios -->
+        <div v-if="isUser" class="space-y-4 mt-2">
+            <div
+                v-for="comment in comments"
+                :key="comment.id"
+                class="p-4 rounded-lg shadow-md flex items-start gap-4 my-2"
+            >
+                <!-- Foto del usuario -->
+                <img
+                    :src="comment.user.avatar || 'https://via.placeholder.com/50'"
+                    alt="Avatar"
+                    class="w-12 h-12 rounded-full"
+                />
+
+                <!-- Contenido del comentario -->
+                <div class="flex-1">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold">{{ comment.user.name }}</h3>
+                            <p class="text-sm text-gray-400">
+                                {{ comment.user.level ? `Level ${comment.user.level}` : '' }}
+                                <span v-if="comment.user.is_subscriber" class="text-blue-400">Subscriber</span>
+                            </p>
+                        </div>
+                        <p class="text-xs ">{{ formatDate(comment.created_at) }}</p>
+                    </div>
+                    <p class="mt-2 ">{{ comment.content }}</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Lista de Comentarios -->
-        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+        <table v-else class="min-w-full bg-white border border-gray-200 rounded-lg">
             <thead class="bg-gray-100 border-b border-gray-300">
             <tr>
                 <th class="px-4 py-2 text-left text-gray-600 font-medium">Usuario</th>
@@ -85,6 +116,9 @@ export default {
         }
     },
     methods: {
+        formatDate(date) {
+            return new Date(date).toLocaleDateString();
+        },
         async createComment() {
             if (!this.newComment.trim()) return; // No permitir comentarios vacíos
 

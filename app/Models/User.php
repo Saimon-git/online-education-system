@@ -79,4 +79,9 @@ class User extends Authenticatable
         return $this->hasRole('user'); // Verifica si el usuario tiene el rol admin
     }
 
+    public function completedVideos()
+    {
+        return $this->belongsToMany(Video::class, 'user_video_completions')->withTimestamps();
+    }
+
 }

@@ -38,20 +38,35 @@ class CourseController extends Controller
     {
         // Devuelve todos los cursos con las categorías y videos relacionados
         $courses = Course::with('category', 'videos')->get();
-        $token = auth()->user()->tokens->first()->token;
 
         return response()->json([
             'courses' =>$courses,
-            'token' => $token, // Token de autenticación para usar en las API
             ], 200);
     }
 
     public function apiShow($id)
     {
         // Encuentra el curso por ID o devuelve un error 404
-        $course = Course::with('category', 'videos.likedByUsers','videos.course','users')->findOrFail($id);
+        $course = Course::with('category', 'videos.likedByUsers','videos.course','videos.completedByUsers','users')->findOrFail($id);
 
         return response()->json($course, 200);
+    }
+
+    public function getProgress($courseId)
+    {
+        $course = Course::findOrFail($courseId);
+        $user = auth()->user();
+
+        $totalVideos = $course->videos()->count();
+        $completedVideos = $course->videos()
+            ->whereHas('completedByUsers', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->count();
+
+        $progress = ($completedVideos / $totalVideos) * 100;
+
+        return response()->json(['progress' => round($progress, 2)], 200);
     }
 }
 

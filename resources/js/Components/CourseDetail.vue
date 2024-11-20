@@ -105,8 +105,25 @@ export default {
                }
            })
             return current_progress;
-        }
+        },
+        continueCourse() {
+            // Encontrar el primer video no completado
+            const firstIncompleteVideo = this.course.videos.find((video) => {
+                return (
+                    !video.completed_by_users.some(
+                        (user) => user.id === this.auth.user.id
+                    )
+                );
+            });
 
+            if (firstIncompleteVideo) {
+                // Redirigir al primer video no completado
+
+                window.location.href = `/courses/${this.courseId}/show-video/${firstIncompleteVideo.title}`;
+            } else {
+                alert('¡Ya has completado todos los videos de este curso!');
+            }
+        },
     },
 };
 </script>

@@ -27,7 +27,7 @@ class Video extends Model
     }
 
 
-        /**
+    /**
      * Get the course that owns the video.
      *
      * This function defines the inverse of the one-to-many relationship
@@ -50,6 +50,11 @@ class Video extends Model
     public function likedByUsers()
     {
         return $this->belongsToMany(User::class, 'user_video_likes');
+    }
+
+    public function completedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_video_completions');
     }
 
 }

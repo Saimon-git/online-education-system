@@ -31,8 +31,10 @@ class UserCourseController extends Controller
         // Verifica si el curso existe
         $course = Course::findOrFail($id);
 
-        // Verifica si el usuario ya está registrado en el curso
-        if ($user->courses->count() > 0 && $user->courses->contains($course)) {
+        // Verifica directamente en la base de datos si el usuario ya está registrado
+        $alreadyRegistered = $user->courses()->where('course_id', $course->id)->exists();
+
+        if ($alreadyRegistered) {
             return response()->json(['message' => 'You are already registered in this course'], 400);
         }
 

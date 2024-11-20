@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-semibold text-gray-700 mb-4">Comentarios</h2>
 
         <!-- Formulario para Crear Comentario -->
-        <form @submit.prevent="createComment" class="mb-16">
+        <form v-if="isUser" @submit.prevent="createComment" class="mb-16">
             <div class="mb-4">
                 <textarea
                     v-model="newComment"
@@ -22,9 +22,9 @@
         </form>
 
         <!-- Mostrar los comentarios -->
-        <div v-if="isUser" class="space-y-4 mt-2">
+        <div class="space-y-4 mt-2">
             <div
-                v-for="comment in comments"
+                v-for="comment in getCommentsApproved"
                 :key="comment.id"
                 class="p-4 rounded-lg shadow-md flex items-start gap-4 my-2"
             >
@@ -53,7 +53,8 @@
         </div>
 
         <!-- Lista de Comentarios -->
-        <table v-else class="min-w-full bg-white border border-gray-200 rounded-lg">
+        <h2 class="text-2xl font-semibold text-gray-700 my-4">Comentarios sin aprobar</h2>
+        <table v-if="!isUser"  class="min-w-full bg-white border border-gray-200 rounded-lg my-4">
             <thead class="bg-gray-100 border-b border-gray-300">
             <tr>
                 <th class="px-4 py-2 text-left text-gray-600 font-medium">Usuario</th>
@@ -62,7 +63,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="comment in getComments" :key="comment.id" class="border-b hover:bg-gray-50">
+            <tr v-for="comment in getCommentsNotApproved" :key="comment.id" class="border-b hover:bg-gray-50">
                 <td class="px-4 py-2">{{ comment.user.name }}</td>
                 <td class="px-4 py-2">{{ comment.content }}</td>
                 <td v-show="!isUser" class="px-4 py-2 flex gap-2">
@@ -111,8 +112,11 @@ export default {
         };
     },
     computed: {
-        getComments() {
+        getCommentsApproved() {
             return this.comments.filter(comment => comment.is_approved);
+        },
+        getCommentsNotApproved() {
+            return this.comments.filter(comment => !comment.is_approved);
         }
     },
     methods: {
@@ -156,7 +160,11 @@ export default {
                 const response = await fetchWithCsrf(`/api/comments/${commentId}/approve`, { method: 'POST' });
                 if (!response.ok) throw new Error('Error al aprobar el comentario');
                 alert('Comentario aprobado correctamente');
-                this.$emit('refresh'); // Emitir evento para refrescar datos
+                 // actualizar el comentario
+                const xhr = await response.json();
+                const index = this.comments.findIndex(comment => comment.id === commentId);
+                this.comments[index].is_approved = true;
+
             } catch (error) {
                 console.error('Error al aprobar el comentario:', error);
                 alert('Error al aprobar el comentario');
@@ -167,7 +175,11 @@ export default {
                 const response = await fetchWithCsrf(`/api/comments/${commentId}/decline`, { method: 'POST' });
                 if (!response.ok) throw new Error('Error al rechazar el comentario');
                 alert('Comentario rechazado correctamente');
-                this.$emit('refresh');
+                //eliminar comentario
+                const xhr = await response.json();
+                const index = this.comments.findIndex(comment => comment.id === commentId);
+                this.comments.splice(index, 1);
+
             } catch (error) {
                 console.error('Error al rechazar el comentario:', error);
                 alert('Error al rechazar el comentario');

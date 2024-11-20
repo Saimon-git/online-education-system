@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Video;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    use AuthorizesRequests;
     // Método para crear un comentario
     public function store(Request $request, Video $video)
     {
@@ -46,13 +48,10 @@ class CommentController extends Controller
     {
         $this->authorize('decline', $comment); // Asegura que el usuario tenga permiso para rechazar
 
-        $comment->update([
-            'is_approved' => false, // Cambia el estado del comentario a rechazado
-        ]);
+        $comment->delete();
 
         return response()->json([
             'message' => 'Comentario rechazado exitosamente.',
-            'comment' => $comment,
         ]);
     }
 }

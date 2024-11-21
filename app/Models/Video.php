@@ -57,4 +57,14 @@ class Video extends Model
         return $this->belongsToMany(User::class, 'user_video_completions');
     }
 
+    public function convertToEmbedUrl(string $url): string
+    {
+        if (str_contains($url, 'youtube.com/watch')) {
+            $videoId = explode('v=', $url)[1];
+            $videoId = explode('&', $videoId)[0];
+            return "https://www.youtube.com/embed/$videoId";
+        }
+        return $url; // Si no es una URL estándar de YouTube, retorna la original.
+    }
+
 }

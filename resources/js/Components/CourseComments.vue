@@ -1,6 +1,6 @@
 <template>
     <div class="my-6">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Comentarios</h2>
+        <h2 v-if="!isAdmin" class="text-2xl font-semibold text-gray-700 mb-4">Comentarios</h2>
 
         <!-- Formulario para Crear Comentario -->
         <form v-if="isUser" @submit.prevent="createComment" class="mb-16">
@@ -86,6 +86,24 @@
             </tr>
             </tbody>
         </table>
+        <!-- Paginación -->
+        <div class="flex justify-between items-center mt-4">
+            <button
+                @click="currentPage--"
+                :disabled="currentPage === 1"
+                class="px-4 py-2 bg-gray-300 text-gray-700 font-bold rounded hover:bg-gray-400 disabled:opacity-50"
+            >
+                Anterior
+            </button>
+            <span>Página {{ currentPage }} de {{ totalPages }}</span>
+            <button
+                @click="currentPage++"
+                :disabled="currentPage === totalPages"
+                class="px-4 py-2 bg-gray-300 text-gray-700 font-bold rounded hover:bg-gray-400 disabled:opacity-50"
+            >
+                Siguiente
+            </button>
+        </div>
     </div>
 </template>
 
@@ -98,26 +116,42 @@ export default {
         },
         videoId: {
             type: String,
-            required: true,
         },
         isUser: {
             type: Boolean,
             required: true,
             default: false,
-        }
+        },
+        isAdmin:{
+            type: Boolean,
+            default: false,
+        },
+        itemsPerPage: {
+            type: Number,
+            default: 10, // Número de comentarios por página
+        },
     },
     data() {
         return {
             newComment: '', // Modelo para el nuevo comentario
+            currentPage: 1, // Página actual
         };
     },
     computed: {
         getCommentsApproved() {
             return this.comments.filter(comment => comment.is_approved);
         },
-        getCommentsNotApproved() {
+        /*getCommentsNotApproved() {
             return this.comments.filter(comment => !comment.is_approved);
-        }
+        },*/
+        totalPages() {
+            return Math.ceil(this.comments.length / this.itemsPerPage); // Total de páginas
+        },
+        getCommentsNotApproved() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.comments.slice(start, end); // Comentarios de la página actual
+        },
     },
     methods: {
         formatDate(date) {

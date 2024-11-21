@@ -28,15 +28,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', ])->group(function () {
+/*Route::middleware(['auth', ])->group(function () {
     Route::resource('courses', CourseController::class);
-    //Route::get('courses/{course}', [CourseController::class, 'show']);
     Route::resource('videos', VideoController::class);
-});
+});*/
 
 Route::middleware(['auth', ])->group(function () {
     Route::resource('courses', CourseController::class);
-    //Route::get('courses/{course}', [CourseController::class, 'show']);
+    Route::resource('videos', VideoController::class);
     Route::post('courses/{course}/register', [UserCourseController::class, 'register']);
     Route::get('courses/{course}/show-video/{url}', [VideoController::class, 'showVideo'])->name('show.video');
 });

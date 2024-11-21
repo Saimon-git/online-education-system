@@ -2,8 +2,12 @@
     <div class="container mx-auto p-6">
         <h1 class="text-2xl font-bold mb-4">Listado de Cursos</h1>
 
+        <Link v-if="!isUser" :href="route('courses.create')" class="underline float-right -mt-10">
+            <PrimaryButton>Crear curso</PrimaryButton>
+        </Link>
+
         <!-- Filtros -->
-        <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+        <div class="flex flex-col md:flex-row items-center gap-4 mb-6 mt-16">
             <!-- Buscar por Nombre -->
             <input
                 type="text"

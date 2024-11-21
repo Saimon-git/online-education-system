@@ -18,6 +18,9 @@ class CourseController extends Controller
     public function create()
     {
         $is_user = auth()->user()->hasRole('user');
+        if($is_user){
+            return redirect()->route('courses.index');
+        }
         $user_id = auth()->id();
         return Inertia::render('Courses/Create',['is_user' => $is_user, 'user_id' => $user_id]);
     }

@@ -141,9 +141,6 @@ export default {
         getCommentsApproved() {
             return this.comments.filter(comment => comment.is_approved);
         },
-        /*getCommentsNotApproved() {
-            return this.comments.filter(comment => !comment.is_approved);
-        },*/
         totalPages() {
             return Math.ceil(this.comments.length / this.itemsPerPage); // Total de páginas
         },

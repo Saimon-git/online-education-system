@@ -1,5 +1,12 @@
 <div class="container mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">Listado de Cursos</h1>
+    <h1 class="text-2xl font-bold mb-4">
+        @if(!$myCourses)
+            Listado de Cursos
+        @else
+            Mis Cursos
+        @endif
+
+    </h1>
 
     @if(!$isUser)
         <a href="{{ route('courses.create') }}" class="underline float-right -mt-10">
@@ -11,8 +18,7 @@
     @endif
 
 
-    <x-flash-message on="registered" type="success" :message="session('message')" />
-
+    <x-flash-message on="registered" type="success" :message="session('message')"/>
 
 
     <!-- Filtros -->
@@ -63,7 +69,7 @@
             </thead>
             <tbody>
             @forelse($courses as $course)
-                <tr class="border-b border-gray-200 hover:bg-gray-50"  wire:key="course-{{ $course->id }}">
+                <tr class="border-b border-gray-200 hover:bg-gray-50" wire:key="course-{{ $course->id }}">
                     <td class="px-6 py-3">{{ $course->name }}</td>
                     <td class="px-6 py-3">{{ $course->description }}</td>
                     <td class="px-6 py-3">{{ $course->category->name }}</td>
@@ -87,9 +93,9 @@
                                     Registrarse
                                 </x-primary-button>
                             @endif
-                                <x-action-message class="me-3" on="registered">
-                                    Registrado!
-                                </x-action-message>
+                            <x-action-message class="me-3" on="registered">
+                                Registrado!
+                            </x-action-message>
                         @else
                             <a href="{{ route('courses.show', $course->id) }}" class="underline">
                                 <x-secondary-button

@@ -19,6 +19,11 @@ class UserSeeder extends Seeder
             'email' => 's.montoya@mail.test', // Password en claro
         ])->assignRole('admin');
 
+        $regular_user = User::factory()->create([
+            'name' => 'Regular User',
+            'email' => 'user@example.com', // Password en claro
+        ])->assignRole('user');
+
         User::factory(10)
             ->hasAttached(
                 Course::factory()->count(2), // Relación con 2 cursos

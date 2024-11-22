@@ -81,7 +81,12 @@ class User extends Authenticatable
 
     public function completedVideos()
     {
-        return $this->belongsToMany(Video::class, 'user_video_completions')->withTimestamps();
+        return $this->belongsToMany(
+            Video::class, // Modelo relacionado
+            'user_video_completions', // Nombre de la tabla pivote
+            'user_id', // Nombre de la clave foránea en la tabla pivote hacia este modelo
+            'video_id' // Nombre de la clave foránea en la tabla pivote hacia el modelo relacionado
+        )->withPivot('course_id')->withTimestamps();
     }
 
 }

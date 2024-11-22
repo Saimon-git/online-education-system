@@ -18,10 +18,11 @@ class CourseFactory extends Factory
      */
     public function definition(): array
     {
+        $categories = Category::all();
         return [
             'name' => $this->faker->sentence(3), // Nombre del curso
             'description' => $this->faker->paragraph(), // Descripción
-            'category_id' => Category::factory(), // Relación con categoría
+            'category_id' => $categories->count() > 0 ? $categories->random()->id : Category::factory(), // Relación con categoría
             'age_group' => $this->faker->randomElement(['5-8', '9-13', '14-16', '16+']), // Grupo de edades
         ];
     }

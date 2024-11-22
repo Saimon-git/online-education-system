@@ -43,31 +43,28 @@ class VideoController extends Controller
         return response()->json(['message' => 'Like added', 'likes' => $video->likes]);
     }
 
-    public function showVideo($course_id, $url)
+    public function showVideo($course_id, $title)
     {
         $video = Video::where('course_id', $course_id)
             ->with('course','comments.user','completedByUsers')
-            ->where('title', $url)
+            ->where('title', $title)
             ->first();
 
         if (!$video) {
             abort(404); // Video no encontrado, retornar error 404
         }
+
         // Determinar si el video está completado por el usuario actual
         $is_completed = $video->completedByUsers()->where('user_id', auth()->id())->exists();
         if ($is_completed) $video->is_completed = true;
 
-        return Inertia::render('Videos/Show', [
-            'video' => $video,
-            'is_completed' => $is_completed,
-        ]);
-
-        if(!$video){
-            abort(404); // Video no encontrado, retornar error 404
-        }
         $is_user = auth()->user()->hasRole('user');
 
-        return Inertia::render('Videos/Show',['video' => $video,'is_user' => $is_user]);
+        return view('videos.show', [
+            'video' => $video,
+            'is_user' => $is_user
+        ]);
+
     }
 
     public function markAsCompleted(Request $request, Video $video)
@@ -80,15 +77,21 @@ class VideoController extends Controller
         }
 
         // Marcar el video como completado
-        $user->completedVideos()->attach($video->id);
+        $user->completedVideos()->attach($video->id,[
+            'course_id' => $video->course_id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
 
         // Calcular el porcentaje de curso completado
         $course = $video->course;
-        $totalVideos = $course->videos()->count();
-        $completedVideos = $user->completedVideos()->where('course_id', $course->id)->count();
-        $progress = ($completedVideos / $totalVideos) * 100;
-        //retornar solo 2 decimales en el valor del progreso
-        $progress = round($progress, 2);
+        $totalVideos = $course->videos->count();
+        $completedVideos = $course->videos()->whereHas('completedByUsers', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->count();
+
+        $progress = $totalVideos > 0 ? round(($completedVideos / $totalVideos) * 100, 2) : 0;
 
         // Actualizar el progreso del curso
         $user->courses()->updateExistingPivot($course->id, ['progress' => $progress]);

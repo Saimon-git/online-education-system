@@ -12,7 +12,22 @@ class CourseController extends Controller
     {
         $is_user = auth()->user()->hasRole('user');
         $user_id = auth()->id();
-        return Inertia::render('Courses/Index',['is_user' => $is_user, 'user_id' => $user_id]);
+        return view('courses.index', [
+            'is_user' => $is_user,
+            'user_id' => $user_id,
+            'my_courses' => false,
+        ]);
+    }
+
+    public function myCourses()
+    {
+        $is_user = auth()->user()->hasRole('user');
+        $user_id = auth()->id();
+        return view('courses.index', [
+            'is_user' => $is_user,
+            'user_id' => $user_id,
+            'my_courses' => true,
+        ]);
     }
 
     public function create()
@@ -22,7 +37,10 @@ class CourseController extends Controller
             return redirect()->route('courses.index');
         }
         $user_id = auth()->id();
-        return Inertia::render('Courses/Create',['is_user' => $is_user, 'user_id' => $user_id]);
+        return view('courses.create', [
+            'is_user' => $is_user,
+            'user_id' => $user_id,
+        ]);
     }
 
     public function store(Request $request)
@@ -60,7 +78,12 @@ class CourseController extends Controller
     public function show(Course $course)
     {
         $is_user = auth()->user()->hasRole('user');
-        return Inertia::render('Courses/Show',['course' => $course->id, 'is_user' => $is_user]);
+
+        return view('courses.show', [
+            'is_user' => $is_user,
+            'course' => $course->id
+        ]);
+
     }
 
 

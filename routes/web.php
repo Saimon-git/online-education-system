@@ -1,45 +1,39 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserCourseController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard',[
-        'isAdmin' => auth()->user()->isAdmin(),
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+Route::view('profile', 'profile')
+    ->middleware(['auth'])
+    ->name('profile');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('courses', CourseController::class);
     Route::resource('videos', VideoController::class);
     Route::post('courses/{course}/register', [UserCourseController::class, 'register']);
-    Route::get('courses/{course}/show-video/{url}', [VideoController::class, 'showVideo'])->name('show.video');
-
-    Route::get('/comments', function (){
-        $comments = \App\Models\Comment::where('is_approved',false)
-            ->with('user')
-            ->get();
+    Route::get('courses/{course}/show-video/{title}', [VideoController::class, 'showVideo'])->name('show.video');
+    Route::get('/my-courses', [CourseController::class, 'myCourses'])->name('courses.my');
+     Route::get('/comments', function () {
         $is_user = auth()->user()->hasRole('user');
-        return Inertia::render('Comments',[
-            'all_comments' => $comments->toArray(),
+        return view('comments', [
             'is_user' => $is_user,
-            'isAdmin' => auth()->user()->isAdmin(),
         ]);
-    });
+    })->name('comments.index');
 });
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

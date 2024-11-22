@@ -28,6 +28,16 @@ git clone https://github.com/Saimon-git/online-education-system.git
 cd online-education-system
 ```
 
+- para el proyecto con livewire usa la rama feat/front-livewire
+```bash
+git fetch --all
+git checkout feat/front-livewire
+```
+- para el proyecto con VueJS usa la rama main
+```bash
+git fetch --all
+git checkout main
+```
 ---
 
 ### **2. Instalar Dependencias**

@@ -54,7 +54,12 @@ class Video extends Model
 
     public function completedByUsers()
     {
-        return $this->belongsToMany(User::class, 'user_video_completions');
+        return $this->belongsToMany(
+            User::class,
+            'user_video_completions',
+            'video_id',
+            'user_id'
+        )->withPivot('course_id', 'created_at', 'updated_at');
     }
 
     public function convertToEmbedUrl(string $url): string

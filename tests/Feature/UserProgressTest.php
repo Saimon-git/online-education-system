@@ -14,7 +14,11 @@ it('calculates user progress for a course', function () {
     $videos = Video::factory()->count(4)->create(['course_id' => $course->id]);
 
     // Simular que el usuario ha completado 2 de los 4 videos
-    $user->completedVideos()->attach($videos->take(2)->pluck('id'));
+    $user->completedVideos()->attach($videos->take(2)->pluck('id'),[
+        'course_id' => $course->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
     // Autenticar usuario
     $this->actingAs($user);

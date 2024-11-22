@@ -16,9 +16,10 @@ class CourseSeeder extends Seeder
     {
         // Crea algunas categorías
         $categories = Category::all();
+        //dd($categories);
 
         // Crea cursos asignándolos a categorías aleatorias
-        Course::factory()->count(10) ->hasVideos(5)->create()->each(function ($course) use ($categories) {
+        Course::factory()->count(10)->create()->each(function ($course) use ($categories) {
             $course->category_id = $categories->random()->id;
             $course->save();
         });

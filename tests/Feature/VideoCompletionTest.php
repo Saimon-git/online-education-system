@@ -39,7 +39,11 @@ it('does not allow a user to mark a video as completed twice', function () {
     $this->actingAs($user);
 
     // Marcar el video como completado por primera vez
-    $user->completedVideos()->attach($video->id);
+    $user->completedVideos()->attach($video->id,[
+        'course_id' => $video->course_id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
     // Intentar completarlo nuevamente
     $response = $this->postJson("/api/videos/{$video->id}/complete");
